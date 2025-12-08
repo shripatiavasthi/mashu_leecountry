@@ -1,5 +1,5 @@
 // ENVIRONMENT VARIABLE
-import {REACT_APP_ENVIRONMENT} from '@env';
+import {REACT_APP_ENVIRONMENT} from '../../config/env';
 
 // BASE URL
 import URL from '../../config/constants';
