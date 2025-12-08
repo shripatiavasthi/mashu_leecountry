@@ -90,7 +90,6 @@ const App: React.FC = () => {
       if (!data) return;
 
       const settingsVersion = data?.version?.settings;
-      dispatch({ type: 'SET_LANGUAGE', setLang: true });
 
       if (apiVersion == null || settingsVersion !== apiVersion) {
         await storeData('api_version', data?.version?.api);
@@ -100,6 +99,9 @@ const App: React.FC = () => {
           await checkForSettingsVersion(settingsVersion);
         }
       }
+
+      // Trigger language fetch only after settings are stored locally.
+      dispatch({ type: 'SET_LANGUAGE', setLang: true });
     } catch (error) {
       console.log(error);
     }

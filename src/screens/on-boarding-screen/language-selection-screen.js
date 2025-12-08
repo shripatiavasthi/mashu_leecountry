@@ -43,29 +43,32 @@ const LanguageSelectionScreen = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('');
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const res = await getData('settings');
-      const data = res.languageOption;
-      if (data != null) {
-        const tempArr = data.map(item => {
-          if (item.name === 'en') {
-            return {...item, isSelected: true};
-          }
-          return {...item, isSelected: false};
-        });
+      const data = res?.languageOption;
+      if (data && data.length) {
+        const tempArr = data.map(item =>
+          item.name === 'en'
+            ? {...item, isSelected: true}
+            : {...item, isSelected: false},
+        );
         setLanguage(tempArr);
         storeData('languages', tempArr);
         setSelectedLanguage(tempArr[0].name);
+      } else {
+        console.log('Language options missing in settings');
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     if (loginState.setLang) {
       fetchData();
-      setLoading(false);
     }
   }, [loginState.setLang]);
 
