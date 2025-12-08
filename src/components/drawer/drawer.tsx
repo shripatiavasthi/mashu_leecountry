@@ -5,7 +5,7 @@ import {
   DrawerItemList,
   DrawerContentComponentProps,
 } from '@react-navigation/drawer';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
 import { SvgUri } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 
@@ -19,7 +19,6 @@ import { AuthContext } from '../../redux/store';
 
 const CustomDrawer: React.FC<DrawerContentComponentProps> = props => {
   const [languages, setLanguages] = useState<any[]>([]);
-  const navigation = useNavigation();
   const [closeIcon, setCloseIcon] = useState('');
   const authContext = useContext(AuthContext);
   const dispatch = authContext?.dispatch;
@@ -59,7 +58,10 @@ const CustomDrawer: React.FC<DrawerContentComponentProps> = props => {
             <View style={DRAWER_STYLE.crossBtn}>
               <TouchableOpacity
                 style={[HEADER_STYLE.btn]}
-                onPress={() => navigation.dispatch(DrawerActions.closeDrawer())}
+                onPress={() =>
+                  // Use the drawer nav from props to avoid dispatching on the wrong navigator.
+                  props.navigation?.dispatch(DrawerActions.closeDrawer())
+                }
               >
                 <SvgUri style={{ margin: 10 }} uri={closeIcon} width={14} height={14} />
               </TouchableOpacity>
