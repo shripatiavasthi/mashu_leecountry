@@ -1,4 +1,4 @@
-import React, {Component, useState, useContext, useEffect} from 'react';
+import React, { Component, useState, useContext, useEffect } from 'react';
 import {
   View,
   SafeAreaView,
@@ -7,38 +7,38 @@ import {
   ScrollView,
   StatusBar,
 } from 'react-native';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 // styles
-import {COLORS} from '../../assets/styles/imports/variables';
-import {GLOBAL_STYLE} from '../../assets/styles/global-style';
-import {ON_BOARDING_STYLE} from '../../assets/styles/screens/on-boarding-style';
+import { COLORS } from '../../assets/styles/imports/variables';
+import { GLOBAL_STYLE } from '../../assets/styles/global-style';
+import { ON_BOARDING_STYLE } from '../../assets/styles/screens/on-boarding-style';
 
 // images
-import {GLOBAL_IMAGES} from '../../assets/images/global-images';
+import { GLOBAL_IMAGES } from '../../assets/images/global-images';
 
 // components
-import {Btn, RadioList, Loader} from '../../components/index';
+import { Btn, RadioList, Loader } from '../../components/index';
 
 // navigation
 import NavigationService from '../../navigation/navigation-service';
 
 // redux
-import {AuthContext} from '../../redux/store';
+import { AuthContext } from '../../redux/store';
 
 // navigation
-import {useIsFocused} from '@react-navigation/native';
-import {getData, storeData} from '../../utils/helper/localStorage';
+import { useIsFocused } from '@react-navigation/native';
+import { getData, storeData } from '../../utils/helper/localStorage';
 
 const LanguageSelectionScreen = () => {
   const isFocused = useIsFocused();
-  const {t, i18n} = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [language, setLanguage] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const {dispatch} = useContext(AuthContext);
-  const {loginState} = useContext(AuthContext);
+  const { dispatch } = useContext(AuthContext);
+  const { loginState } = useContext(AuthContext);
 
   const [selectedLanguage, setSelectedLanguage] = useState('');
 
@@ -50,8 +50,8 @@ const LanguageSelectionScreen = () => {
       if (data && data.length) {
         const tempArr = data.map(item =>
           item.name === 'en'
-            ? {...item, isSelected: true}
-            : {...item, isSelected: false},
+            ? { ...item, isSelected: true }
+            : { ...item, isSelected: false },
         );
         setLanguage(tempArr);
         storeData('languages', tempArr);
@@ -128,6 +128,9 @@ const LanguageSelectionScreen = () => {
                       label="Continue"
                       mode="outlined"
                       color={COLORS.secondaryColor}
+                      lablestyle={{
+                        color: COLORS.whiteColor
+                      }}
                       size="medium"
                       style={ON_BOARDING_STYLE.btn}
                       onPress={() => {
@@ -144,7 +147,7 @@ const LanguageSelectionScreen = () => {
                           })
                           .catch(error => console.log(error));
                       }}
-                      contentStyle={{marginRight: -6, marginLeft: -12}}
+                      contentStyle={{ marginRight: -6, marginLeft: -12 }}
                     />
                   </View>
                 </React.Fragment>
