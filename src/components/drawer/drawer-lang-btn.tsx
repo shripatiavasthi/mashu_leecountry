@@ -49,11 +49,26 @@ const DrawerLangBtn: React.FC<DrawerLangBtnProps> = ({ data, onChange }) => {
           label={item.optionName}
           mode={item.isSelected ? 'contained' : 'outlined'}
           color={COLORS.secondaryColor}
-          size="small"
-          style={DRAWER_STYLE.btnContainer}
-          contentStyle={{ marginLeft: -18, marginHorizontal: 4 }}
+          size="default"
+          style={[
+            DRAWER_STYLE.btnContainer,
+            { backgroundColor: item.isSelected ? COLORS.secondaryColor : COLORS.whiteColor }
+          ]}
+          contentStyle={{
+            height: 46,
+            justifyContent: 'center',
+            alignItems: 'center',
+            // paddingHorizontal: 0,
+          }}
+          lablestyle={{
+            fontSize: 10,
+            fontWeight: '700',
+            color: item.isSelected ? COLORS.whiteColor : COLORS.secondaryColor,
+            textAlign: 'center',
+          }}
           onPress={handleChange(item.name)}
         />
+
       ))}
     </View>
   );

@@ -28,6 +28,10 @@ export const RADIO_STYLE = StyleSheet.create({
     paddingVertical: 16,
     overflow: 'hidden',
     marginBottom: 15,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    borderWidth: 0.5,
+    borderColor: COLORS.borderColor,
   },
   listActive: {
     backgroundColor: COLORS.primaryColor,

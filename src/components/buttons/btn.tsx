@@ -18,7 +18,8 @@ export interface BtnProps {
   color?: string;
   label?: string;
   size?: BtnSize;
-  lablestyle?: TextStyle;
+  lablestyle?: TextStyle;        // ← keep old prop
+  textColor?: string;            // ← add support for dynamic text color
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
   uppercase?: boolean;
@@ -34,6 +35,7 @@ const Btn: React.FC<BtnProps> = ({
   label = '',
   size = 'default',
   lablestyle,
+  textColor,
   style,
   contentStyle,
   uppercase = true,
@@ -42,51 +44,37 @@ const Btn: React.FC<BtnProps> = ({
   loading = false,
   disabled = false,
 }) => {
+
   const fontSize = (btnSize: BtnSize): number => {
     switch (btnSize) {
-      case 'medium':
-        return FONT_SIZE_14;
-      case 'small':
-        return FONT_SIZE_10;
-      case 'default':
-      default:
-        return FONT_SIZE_16;
+      case 'medium': return FONT_SIZE_14;
+      case 'small': return FONT_SIZE_10;
+      default: return FONT_SIZE_16;
     }
   };
 
   const heightSize = (btnSize: BtnSize): number => {
     switch (btnSize) {
-      case 'medium':
-        return 38;
-      case 'small':
-        return 32;
-      case 'default':
-      default:
-        return 45;
+      case 'medium': return 38;
+      case 'small': return 32;
+      default: return 45;
     }
-  };
-
-  const contentSize = (btnSize: BtnSize): StyleProp<ViewStyle> => {
-    if (btnSize === 'small') {
-      return [{ marginHorizontal: -12, marginVertical: -2 }];
-    }
-    return undefined;
   };
 
   return (
     <Button
       mode={mode}
       buttonColor={disabled ? COLORS.greyColor : color}
+      textColor={textColor}                        // ← Correctly supports override
       theme={{ roundness: 26 }}
       contentStyle={[
         { height: heightSize(size) },
         contentStyle,
-        contentSize(size),
       ]}
       labelStyle={[
         BTN_STYLE.label,
         { fontSize: fontSize(size) },
-        lablestyle,
+        lablestyle,                                 // ← Your override kept LAST
       ]}
       uppercase={uppercase}
       icon={icon as any}
@@ -99,7 +87,8 @@ const Btn: React.FC<BtnProps> = ({
           borderColor: disabled ? COLORS.borderColor : color,
           borderWidth: 1,
         },
-      ]}>
+      ]}
+    >
       {label}
     </Button>
   );
