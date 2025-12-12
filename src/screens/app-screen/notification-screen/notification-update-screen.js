@@ -7,6 +7,7 @@ import {
   Text,
   Platform,
 } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 import {useTranslation} from 'react-i18next';
 import {getUniqueId} from 'react-native-device-info';
 
@@ -78,7 +79,8 @@ const NotificationUpdateScreen = props => {
   const registerTokenData = async list => {
     const devicePlatform = Platform.OS;
     const deviceUniqueId = await getUniqueId();
-    const deviceToken = apnsToken || '';
+    const deviceToken =
+      Platform.OS === 'android' ? await messaging().getToken() : apnsToken;
 
     let tempArr = [];
 

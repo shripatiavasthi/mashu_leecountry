@@ -3,6 +3,8 @@ import 'react-native-gesture-handler';
 import React, { useEffect, useReducer, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNetInfo } from '@react-native-community/netinfo';
+import { Platform } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 import {
   Provider as PaperProvider,
   configureFonts,
@@ -106,6 +108,66 @@ const App: React.FC = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    const saveStatusToStorage = async (key: string, value: boolean) => {
+      try {
+        await storeData(key, value);
+        dispatch({ type: 'UPDATE_BADGE_STATUS', badgeStatus: value });
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    const setupMessaging = async () => {
+      // Request notification permissions
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (enabled && Platform.OS === 'ios') {
+        const token = await messaging().getAPNSToken();
+        if (token) {
+          dispatch({ type: 'APN_TOKEN', apnsToken: token });
+          await storeData('apnsToken', token);
+          console.log('APNs token stored');
+        }
+      }
+
+      // Background handler
+      messaging().setBackgroundMessageHandler(async () => {
+        dispatch({
+          type: 'NOTIFICATION_UPDATE',
+          notificationUpdate: new Date(Date.now()),
+        });
+
+        saveStatusToStorage('badgeStatus', true).then(() =>
+          console.log('Background notification handled'),
+        );
+      });
+
+      // Foreground handler
+      const unsubscribe = messaging().onMessage(async () => {
+        dispatch({
+          type: 'NOTIFICATION_UPDATE',
+          notificationUpdate: new Date(Date.now()),
+        });
+
+        saveStatusToStorage('badgeStatus', true).then(() =>
+          console.log('Foreground notification handled'),
+        );
+      });
+
+      return unsubscribe;
+    };
+
+    const unsubscribePromise = setupMessaging();
+
+    return () => {
+      unsubscribePromise.then(unsub => unsub?.());
+    };
+  }, []);
 
   useEffect(() => {
     getLocalData('selected_services', 'selected_language');

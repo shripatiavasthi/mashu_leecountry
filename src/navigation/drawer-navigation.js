@@ -1,8 +1,10 @@
 import React, {useEffect, useState, useContext} from 'react';
+import {Platform} from 'react-native';
 import {SvgUri} from 'react-native-svg';
+import messaging from '@react-native-firebase/messaging';
 
 // plugin
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 
@@ -135,8 +137,61 @@ const newMenus = data => {
 function Root() {
   const [menus, setMenus] = useState([]);
   const {loginState} = useContext(AuthContext);
+  const navigation = useNavigation();
 
   const lang = loginState.language;
+
+  const msgHandlerAndroid = () => {
+    console.log('***** GET_INITIAL _NOTIFICATION INVOKED *****');
+    messaging()
+      .getInitialNotification()
+      .then(res => {
+        if (res) {
+          navigation.navigate('notification-details-screen', {
+            data: res,
+            isRedirectFrom: 'notification-invoked',
+          });
+        }
+      })
+      .catch(err => console.error('getInitialNotification() failed', err));
+
+    messaging().onNotificationOpenedApp(msg => {
+      if (msg) {
+        navigation.navigate('notification-details-screen', {
+          data: msg,
+          isRedirectFrom: 'notification-invoked',
+        });
+      }
+      });
+  };
+
+  const msgHandlerIOS = () => {
+    console.log('***** GET_INITIAL _NOTIFICATION INVOKED *****');
+    messaging()
+      .getInitialNotification()
+      .then(notification => {
+        if (notification) {
+          navigation.navigate('notification-details-screen', {
+            data: notification,
+            isRedirectFrom: 'notification-invoked',
+          });
+        }
+      })
+      .catch(err => console.error('getInitialNotification() failed', err));
+
+    messaging().onNotificationOpenedApp(msg => {
+      if (msg) {
+        navigation.navigate('notification-details-screen', {
+          data: msg,
+          isRedirectFrom: 'notification-invoked',
+        });
+      }
+    });
+  };
+
+  useEffect(() => {
+    Platform.OS === 'android' ? msgHandlerAndroid() : msgHandlerIOS();
+  }, []);
 
   useEffect(() => {
     getData('settings')

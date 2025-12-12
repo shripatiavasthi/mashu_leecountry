@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 import {getUniqueId} from 'react-native-device-info';
 
 // styles
@@ -42,7 +43,20 @@ const ServiceSelectionScreen = () => {
   // Language from redux
   const lang = loginState.language;
 
+  const registerDevice = async () => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Notification permission status: ', authStatus);
+    }
+  };
+
   useEffect(() => {
+    registerDevice();
+
     getData('settings')
       .then(res => {
         const userOptions = res.userOption;
@@ -64,7 +78,8 @@ const ServiceSelectionScreen = () => {
     const deviceUniqueId = await getUniqueId();
 
     // Device token (FCM/APN)
-    const deviceToken = loginState.apnsToken || '';
+    const deviceToken =
+      Platform.OS === 'android' ? await messaging().getToken() : loginState.apnsToken;
 
     let tempArr = [];
 
