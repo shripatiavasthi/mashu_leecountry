@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "625000981851",
     "project_id": "lc---hvs-reach",
-    "storage_bucket": "lc---hvs-reach.appspot.com"
+    "storage_bucket": "lc---hvs-reach.firebasestorage.app"
   },
   "client": [
     {
@@ -29,6 +29,13 @@
             {
               "client_id": "625000981851-6apvnkm8ot3qv0k3jjqqf8incq0klls1.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "625000981851-bskp7o0v2u79kp8rk34ujflu3ma3j32a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.infojini.hvsreach"
+              }
             }
           ]
         }

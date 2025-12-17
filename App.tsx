@@ -169,25 +169,29 @@ const App: React.FC = () => {
     const registerForPushNotifications = async () => {
       try {
         const authStatus = await messaging().requestPermission();
+        console.log('Push notification auth status:', authStatus);
         const enabled =
           authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
           authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
+        console.log('Push notification enabled status:', enabled);
         if (!enabled) {
           console.log('Push permission not granted:', authStatus);
           return;
         }
+        console.log('Push permission granted:', authStatus);
 
         if (Platform.OS === 'ios') {
           await messaging().registerDeviceForRemoteMessages();
         }
-
+        console.log('Device registered for remote messages');
         const apnsToken =
           Platform.OS === 'ios' ? await messaging().getAPNSToken() : null;
+        console.log('APNs Token:', apnsToken);
         const fcmToken = await messaging().getToken();
+        console.log('FCM Token:', fcmToken);
         const tokenToStore =
           Platform.OS === 'ios' ? apnsToken || fcmToken : fcmToken;
-
+        console.log('Final Token to Store:', tokenToStore);
         if (tokenToStore) {
           dispatch({ type: 'APN_TOKEN', apnsToken: tokenToStore });
           await storeData('apnsToken', tokenToStore);

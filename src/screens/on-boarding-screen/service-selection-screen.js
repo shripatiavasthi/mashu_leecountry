@@ -80,6 +80,8 @@ const ServiceSelectionScreen = () => {
           : loginState.apnsToken ||
             (await messaging().getAPNSToken()) ||
             (await messaging().getToken());
+
+      console.log('Device Token:', deviceToken);
     } catch (err) {
       console.log('getToken failed:', err);
     }
