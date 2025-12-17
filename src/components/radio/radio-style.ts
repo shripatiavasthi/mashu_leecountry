@@ -30,7 +30,7 @@ export const RADIO_STYLE = StyleSheet.create({
     marginBottom: 15,
     // flexDirection: 'row',
     // alignItems: 'center',
-    borderWidth: 0.5,
+    borderWidth: 0.1,
     borderColor: COLORS.borderColor,
   },
   listActive: {

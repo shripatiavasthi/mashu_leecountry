@@ -24,6 +24,10 @@ import SETTINGS from './src/utils/helper/API/SETTINGS';
 import { COLORS } from './src/assets/styles/imports/variables';
 import './src/i18n';
 
+
+import messaging from '@react-native-firebase/messaging';
+import { Alert, Platform } from 'react-native';
+
 const fontConfig = {
   default: {
     regular: {
@@ -116,6 +120,37 @@ const App: React.FC = () => {
       })
       .catch(error => console.log(error));
   }, []);
+
+
+async function requestUserPermission() {
+  const authorizationStatus = await messaging().requestPermission();
+  if (authorizationStatus) {
+    console.log('Permission status:', authorizationStatus);
+  }
+}
+
+// Token get karne ka function
+async function getFcmToken() {
+  try {
+    if (Platform.OS === 'ios') {
+      await messaging().registerDeviceForRemoteMessages();
+    }
+
+    const token = await messaging().getToken();
+    console.log('FCM Token:', token);
+    Alert.alert('FCM Token', token);
+    return token;
+  } catch (error) {
+    console.log('Error getting FCM token:', error);
+  }
+}
+
+useEffect(() => {
+  requestUserPermission();
+  getFcmToken();
+}, []);
+
+
 
   return (
     <PaperProvider theme={paperTheme}>

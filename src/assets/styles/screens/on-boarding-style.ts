@@ -38,9 +38,11 @@ export const ON_BOARDING_STYLE = StyleSheet.create({
   btnWrap: {
     alignItems: 'center',
     marginVertical: 44,
+    
   },
   btn: {
     width: 156,
+    
   },
   loaderWrap: {
     flex: 1,
