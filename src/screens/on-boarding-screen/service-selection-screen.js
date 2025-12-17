@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 import { getUniqueId } from 'react-native-device-info';
 
 // styles
@@ -37,74 +38,72 @@ const ServiceSelectionScreen = () => {
   const [text, setText] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const [apnsToken, setApnsToken] = useState('');
-
-  // Language from redux
   const lang = loginState.language;
 
   useEffect(() => {
     getData('settings')
       .then(res => {
-        const userOptions = res.userOption;
-        let tempArr = userOptions.map(item => {
-          return { ...item, isSelected: false };
-        });
+        const userOptions = res.userOption || [];
+        let tempArr = userOptions.map(item => ({
+          ...item,
+          isSelected: false,
+        }));
         setAllServices(tempArr);
-        setText(res.commonText);
+        setText(res.commonText || {});
         setLoading(false);
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log('Error loading settings:', error);
+        setLoading(false);
+      });
   }, []);
 
-  // Data required to register device token
   const registerTokenData = async list => {
-    const devicePlatform = Platform.OS;
+    try {
+      const devicePlatform = Platform.OS;
+      const deviceUniqueId = await getUniqueId();
+      const deviceToken = await messaging().getToken();
 
-    // Device Unique Id
-    const deviceUniqueId = await getUniqueId();
-
-    // Device token (FCM/APN)
-    const deviceToken = loginState.apnsToken || '';
-
-    let tempArr = [];
-
-    list.map((item, index) => {
-      item.isSelected && tempArr.push(item.name);
-    });
-
-    const reqData = {
-      platform: devicePlatform,
-      token: deviceToken,
-      deviceId: deviceUniqueId,
-      userOption: tempArr,
-    };
-
-    // Register device token
-    NOTIFICATIONS.REGISTER_DEVICE_TOKEN(reqData)
-      .then(res => console.log('DEVICE REGISTERED: ', res.data))
-      .catch(error => {
-        console.log('Error : ', error);
+      let selectedOptions = [];
+      list.forEach(item => {
+        if (item.isSelected) {
+          selectedOptions.push(item.name);
+        }
       });
 
-    console.log(deviceToken, devicePlatform, tempArr, deviceUniqueId);
+      const reqData = {
+        platform: devicePlatform,
+        token: deviceToken,
+        deviceId: deviceUniqueId,
+        userOption: selectedOptions,
+      };
+
+      await NOTIFICATIONS.REGISTER_DEVICE_TOKEN(reqData);
+      console.log('DEVICE REGISTERED SUCCESSFULLY');
+    } catch (error) {
+      console.log('Error registering device token:', error);
+    }
   };
 
-  // Function to check if option is selected or not
   const checkForSelectedOptions = arr => {
     return arr.every(item => {
-      if (item.isSelected && item.name === 'all') {
-        return false;
-      } else if (item.isSelected) {
-        return false;
-      } else {
-        return true;
-      }
+      if (item.name === 'all' && item.isSelected) return false;
+      return !item.isSelected;
     });
+  };
+
+  const handleContinue = async () => {
+    await storeData('selected_services', allServices);
+    dispatch({
+      type: 'REGISTER',
+      language: loginState.language,
+      notifications: allServices,
+    });
+    await registerTokenData(allServices);
   };
 
   return (
-    <SafeAreaView
-      style={[GLOBAL_STYLE.safeAreaView, ON_BOARDING_STYLE.bgColor]}>
+    <SafeAreaView style={[GLOBAL_STYLE.safeAreaView, ON_BOARDING_STYLE.bgColor]}>
       {isFocused && (
         <View
           style={{
@@ -121,14 +120,11 @@ const ServiceSelectionScreen = () => {
         </View>
       )}
       <View style={[ON_BOARDING_STYLE.logoWrap]}>
-        <Image
-          source={GLOBAL_IMAGES.logo}
-          style={[ON_BOARDING_STYLE.logoImg]}
-        />
+        <Image source={GLOBAL_IMAGES.logo} style={[ON_BOARDING_STYLE.logoImg]} />
       </View>
       <View style={[ON_BOARDING_STYLE.titleWrap]}>
         <Text style={[ON_BOARDING_STYLE.headline]}>
-          {text?.introduction?.[lang]}
+          {text?.introduction?.[lang] || ''}
         </Text>
       </View>
       <ScrollView
@@ -141,9 +137,8 @@ const ServiceSelectionScreen = () => {
             ) : (
               <CheckboxList
                 data={allServices}
-                onChange={(value, _dataArr) => {
-                  console.log(_dataArr);
-                  setAllServices(_dataArr);
+                onChange={(value, updatedData) => {
+                  setAllServices(updatedData);
                 }}
               />
             )}
@@ -153,29 +148,13 @@ const ServiceSelectionScreen = () => {
       <View style={[ON_BOARDING_STYLE.btnWrap]}>
         <Btn
           disabled={checkForSelectedOptions(allServices)}
-          label={text?.continue?.[lang]}
+          label={text?.continue?.[lang] || 'Continue'}
           mode="outlined"
           color={COLORS.secondaryColor}
-          lablestyle={{
-            color: COLORS.whiteColor
-          }}
           size="medium"
           style={ON_BOARDING_STYLE.btn}
-          onPress={() => {
-            // store selected services in async-storage
-            storeData('selected_services', allServices).then(res => {
-              // dispatch register action
-              dispatch({
-                type: 'REGISTER',
-                language: loginState.language,
-                notifications: allServices,
-              });
-            });
-
-            // Register device token
-            registerTokenData(allServices);
-          }}
-        contentStyle={{ marginRight: -6, marginLeft: -12 }}
+          onPress={handleContinue}
+          contentStyle={{ marginRight: -6, marginLeft: -12 }}
         />
       </View>
     </SafeAreaView>

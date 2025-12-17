@@ -24,24 +24,14 @@ import SETTINGS from './src/utils/helper/API/SETTINGS';
 import { COLORS } from './src/assets/styles/imports/variables';
 import './src/i18n';
 
-
 import messaging from '@react-native-firebase/messaging';
 import { Alert, Platform } from 'react-native';
 
 const fontConfig = {
   default: {
-    regular: {
-      fontFamily: 'Arial',
-      fontWeight: 'normal',
-    },
-    medium: {
-      fontFamily: 'Arial',
-      fontWeight: 'medium',
-    },
-    bold: {
-      fontFamily: 'Arial',
-      fontWeight: 'bold',
-    },
+    regular: { fontFamily: 'Arial', fontWeight: 'normal' },
+    medium: { fontFamily: 'Arial', fontWeight: 'medium' },
+    bold: { fontFamily: 'Arial', fontWeight: 'bold' },
   },
 };
 
@@ -50,6 +40,7 @@ const CombinedDefaultTheme = {
   ...NavigationDefaultTheme,
   fonts: configureFonts(fontConfig as any),
 };
+
 const CombinedDarkTheme = {
   ...PaperDarkTheme,
   ...NavigationDarkTheme,
@@ -59,12 +50,71 @@ const CombinedDarkTheme = {
 const App: React.FC = () => {
   const netInfo = useNetInfo();
   const isNetConnected = netInfo.isConnected ?? true;
+
   const isDark = false;
   const combinedTheme = isDark ? CombinedDarkTheme : CombinedDefaultTheme;
   const paperTheme = isDark ? PaperDarkTheme : PaperDefaultTheme;
 
   const [loginState, dispatch] = useReducer(loginReducer, initialState);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
+
+  // Save badge status to storage + redux
+  const saveBadgeStatus = async (value: boolean) => {
+    try {
+      await storeData('badgeStatus', value);
+      dispatch({ type: 'UPDATE_BADGE_STATUS', badgeStatus: value });
+    } catch (err) {
+      console.log('Failed to update badge status', err);
+    }
+  };
+
+  // Unified Firebase Messaging Setup (Android + iOS)
+  const setupFirebaseMessaging = async () => {
+    // Request permission (important for iOS)
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Notification permission granted');
+    }
+
+
+    // Register device for remote messages on iOS
+    // if (Platform.OS === 'ios') {
+    //   await messaging().registerDeviceForRemoteMessages();
+    // }
+
+    // // Get FCM token
+    // try {
+    //   const token = await messaging().getToken();
+    //   console.log('FCM Token:', token);
+    //   Alert.alert('FCM Token', token); 
+    // } catch (error) {
+    //   console.log('Error getting FCM token:', error);
+    // }
+
+    // Background message handler (app closed or in background)
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+      console.log('Background message:', remoteMessage);
+      dispatch({
+        type: 'NOTIFICATION_UPDATE',
+        notificationUpdate: new Date(Date.now()),
+      });
+      await saveBadgeStatus(true);
+    });
+
+    // Foreground message handler
+    messaging().onMessage(async remoteMessage => {
+      console.log('Foreground message:', remoteMessage);
+      dispatch({
+        type: 'NOTIFICATION_UPDATE',
+        notificationUpdate: new Date(Date.now()),
+      });
+      await saveBadgeStatus(true);
+    });
+  };
 
   const getLocalData = async (key1: string, key2: string) => {
     setAuthLoading(true);
@@ -77,11 +127,11 @@ const App: React.FC = () => {
         dispatch({
           type: 'REGISTER',
           language,
-          notifications: services,
+          notifications: JSON.parse(services),
         });
       }
     } catch (err) {
-      console.log(err);
+      console.log('Error loading local data:', err);
     } finally {
       setAuthLoading(false);
     }
@@ -99,70 +149,44 @@ const App: React.FC = () => {
         await storeData('api_version', data?.version?.api);
         await storeData('settings_version', settingsVersion);
         await storeData('settings', data);
+
         if (apiVersion !== settingsVersion) {
           await checkForSettingsVersion(settingsVersion);
         }
       }
 
-      // Trigger language fetch only after settings are stored locally.
       dispatch({ type: 'SET_LANGUAGE', setLang: true });
     } catch (error) {
-      console.log(error);
+      console.log('Error checking settings version:', error);
     }
   };
 
   useEffect(() => {
+    // Setup Firebase Messaging
+    setupFirebaseMessaging();
+
+    // Load local data
     getLocalData('selected_services', 'selected_language');
 
+    // Check settings version
     getData<string | null>('settings_version')
-      .then(res => {
-        checkForSettingsVersion(res ?? null);
-      })
-      .catch(error => console.log(error));
+      .then(res => checkForSettingsVersion(res ?? null))
+      .catch(() => checkForSettingsVersion(null));
+
   }, []);
-
-
-async function requestUserPermission() {
-  const authorizationStatus = await messaging().requestPermission();
-  if (authorizationStatus) {
-    console.log('Permission status:', authorizationStatus);
-  }
-}
-
-// Token get karne ka function
-async function getFcmToken() {
-  try {
-    if (Platform.OS === 'ios') {
-      await messaging().registerDeviceForRemoteMessages();
-    }
-
-    const token = await messaging().getToken();
-    console.log('FCM Token:', token);
-    Alert.alert('FCM Token', token);
-    return token;
-  } catch (error) {
-    console.log('Error getting FCM token:', error);
-  }
-}
-
-useEffect(() => {
-  requestUserPermission();
-  getFcmToken();
-}, []);
-
-
+  
 
   return (
     <PaperProvider theme={paperTheme}>
-      <AuthContext.Provider value={{ state: loginState, loginState, dispatch }}>
+      <AuthContext.Provider value={{ loginState, dispatch }}>
         {loginState.language != null && loginState.notifications != null ? (
           authLoading ? (
             <Loader bgColor={COLORS.tertiaryColor} />
           ) : (
-            <NavigationStack theme={combinedTheme as any} />
+            <NavigationStack theme={combinedTheme} />
           )
         ) : (
-          <RootStack theme={combinedTheme as any} />
+          <RootStack theme={combinedTheme} />
         )}
         {!isNetConnected && <NoInternet />}
       </AuthContext.Provider>
@@ -171,3 +195,8 @@ useEffect(() => {
 };
 
 export default App;
+
+
+
+
+
