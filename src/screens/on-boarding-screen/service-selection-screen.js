@@ -64,13 +64,25 @@ const ServiceSelectionScreen = () => {
     // Device Unique Id
     const deviceUniqueId = await getUniqueId();
 
+    // Register with FCM/FIS before requesting a token to avoid FIS_AUTH_ERROR
+    try {
+      await messaging().registerDeviceForRemoteMessages();
+    } catch (err) {
+      console.log('registerDeviceForRemoteMessages failed:', err);
+    }
+
     // Device token (FCM/APN)
-    const deviceToken =
-      Platform.OS === 'android'
-        ? await messaging().getToken()
-        : loginState.apnsToken ||
-          (await messaging().getAPNSToken()) ||
-          (await messaging().getToken());
+    let deviceToken = '';
+    try {
+      deviceToken =
+        Platform.OS === 'android'
+          ? await messaging().getToken()
+          : loginState.apnsToken ||
+            (await messaging().getAPNSToken()) ||
+            (await messaging().getToken());
+    } catch (err) {
+      console.log('getToken failed:', err);
+    }
 
     let tempArr = [];
 

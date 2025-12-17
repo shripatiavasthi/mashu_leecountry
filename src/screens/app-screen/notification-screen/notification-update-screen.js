@@ -79,12 +79,23 @@ const NotificationUpdateScreen = props => {
   const registerTokenData = async list => {
     const devicePlatform = Platform.OS;
     const deviceUniqueId = await getUniqueId();
-    const deviceToken =
-      Platform.OS === 'android'
-        ? await messaging().getToken()
-        : apnsToken ||
-          (await messaging().getAPNSToken()) ||
-          (await messaging().getToken());
+    try {
+      await messaging().registerDeviceForRemoteMessages();
+    } catch (err) {
+      console.log('registerDeviceForRemoteMessages failed:', err);
+    }
+
+    let deviceToken = '';
+    try {
+      deviceToken =
+        Platform.OS === 'android'
+          ? await messaging().getToken()
+          : apnsToken ||
+            (await messaging().getAPNSToken()) ||
+            (await messaging().getToken());
+    } catch (err) {
+      console.log('getToken failed:', err);
+    }
 
     let tempArr = [];
 
