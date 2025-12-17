@@ -23,10 +23,8 @@ import { getData, storeData } from './src/utils/helper/localStorage';
 import SETTINGS from './src/utils/helper/API/SETTINGS';
 import { COLORS } from './src/assets/styles/imports/variables';
 import './src/i18n';
-
-
 import messaging from '@react-native-firebase/messaging';
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 const fontConfig = {
   default: {
@@ -65,6 +63,15 @@ const App: React.FC = () => {
 
   const [loginState, dispatch] = useReducer(loginReducer, initialState);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
+
+  const saveStatusToStorage = async (key: string, value: boolean) => {
+    try {
+      await storeData(key, value);
+      dispatch({ type: 'UPDATE_BADGE_STATUS', badgeStatus: value });
+    } catch (err) {
+      console.log('Failed to update badge status', err);
+    }
+  };
 
   const getLocalData = async (key1: string, key2: string) => {
     setAuthLoading(true);
@@ -121,35 +128,77 @@ const App: React.FC = () => {
       .catch(error => console.log(error));
   }, []);
 
+  // Foreground/notification-open handlers
+  useEffect(() => {
+    const handleNotificationUpdate = () => {
+      dispatch({
+        type: 'NOTIFICATION_UPDATE',
+        notificationUpdate: new Date(),
+      });
+      saveStatusToStorage('badgeStatus', true);
+    };
 
-async function requestUserPermission() {
-  const authorizationStatus = await messaging().requestPermission();
-  if (authorizationStatus) {
-    console.log('Permission status:', authorizationStatus);
-  }
-}
+    const unsubscribeOnMessage = messaging().onMessage(async () => {
+      handleNotificationUpdate();
+    });
 
-// Token get karne ka function
-async function getFcmToken() {
-  try {
-    if (Platform.OS === 'ios') {
-      await messaging().registerDeviceForRemoteMessages();
-    }
+    const unsubscribeOnNotificationOpened = messaging().onNotificationOpenedApp(
+      () => {
+        handleNotificationUpdate();
+      },
+    );
 
-    const token = await messaging().getToken();
-    console.log('FCM Token:', token);
-    Alert.alert('FCM Token', token);
-    return token;
-  } catch (error) {
-    console.log('Error getting FCM token:', error);
-  }
-}
+    // Cold-start notification
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          handleNotificationUpdate();
+        }
+      })
+      .catch(err => console.log('getInitialNotification error', err));
 
-useEffect(() => {
-  requestUserPermission();
-  getFcmToken();
-}, []);
+    return () => {
+      unsubscribeOnMessage();
+      unsubscribeOnNotificationOpened();
+    };
+  }, []);
 
+  // Permission + token capture (APNs/FCM)
+  useEffect(() => {
+    const registerForPushNotifications = async () => {
+      try {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+        if (!enabled) {
+          console.log('Push permission not granted:', authStatus);
+          return;
+        }
+
+        if (Platform.OS === 'ios') {
+          await messaging().registerDeviceForRemoteMessages();
+        }
+
+        const apnsToken =
+          Platform.OS === 'ios' ? await messaging().getAPNSToken() : null;
+        const fcmToken = await messaging().getToken();
+        const tokenToStore =
+          Platform.OS === 'ios' ? apnsToken || fcmToken : fcmToken;
+
+        if (tokenToStore) {
+          dispatch({ type: 'APN_TOKEN', apnsToken: tokenToStore });
+          await storeData('apnsToken', tokenToStore);
+        }
+      } catch (error) {
+        console.log('Push notification setup error:', error);
+      }
+    };
+
+    registerForPushNotifications();
+  }, []);
 
 
   return (

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>625000981851-lsil98an1r3uljhj7cl4occvl3vsupob.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.625000981851-lsil98an1r3uljhj7cl4occvl3vsupob</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA82wXyFyDHHzegA4XlY9TCKNVtDc6-kJ0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>625000981851</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.lee.hvsreach</string>
+	<key>PROJECT_ID</key>
+	<string>lc---hvs-reach</string>
+	<key>STORAGE_BUCKET</key>
+	<string>lc---hvs-reach.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:625000981851:ios:4965a130c570f8e02ba67e</string>
+</dict>
+</plist>

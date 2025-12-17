@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 import { getUniqueId } from 'react-native-device-info';
 
 // styles
@@ -64,7 +65,12 @@ const ServiceSelectionScreen = () => {
     const deviceUniqueId = await getUniqueId();
 
     // Device token (FCM/APN)
-    const deviceToken = loginState.apnsToken || '';
+    const deviceToken =
+      Platform.OS === 'android'
+        ? await messaging().getToken()
+        : loginState.apnsToken ||
+          (await messaging().getAPNSToken()) ||
+          (await messaging().getToken());
 
     let tempArr = [];
 

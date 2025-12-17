@@ -1,33 +1,34 @@
 {
   "project_info": {
-    "project_number": "288934416181",
-    "firebase_url": "https://setupapp-4d616-default-rtdb.firebaseio.com",
-    "project_id": "setupapp-4d616",
-    "storage_bucket": "setupapp-4d616.firebasestorage.app"
+    "project_number": "625000981851",
+    "project_id": "lc---hvs-reach",
+    "storage_bucket": "lc---hvs-reach.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:288934416181:android:a1ef3fafb8f1a01a5a467c",
+        "mobilesdk_app_id": "1:625000981851:android:e0c3612d97d5a48a2ba67e",
         "android_client_info": {
-          "package_name": "com.dwao_blogs"
+          "package_name": "com.infojini.hvsreach"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "625000981851-6apvnkm8ot3qv0k3jjqqf8incq0klls1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDtxUBdThA9Ww-__UQILsWyp8XTPxrlWMY"
+          "current_key": "AIzaSyDmG_ToscX_uD0lERcIDqdTEwnVgl4MJSk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "288934416181-f74pqt45i5el3u1b23dkrugh7m6pn4dp.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "org.reactjs.native.example.SetupApp"
-              }
+              "client_id": "625000981851-6apvnkm8ot3qv0k3jjqqf8incq0klls1.apps.googleusercontent.com",
+              "client_type": 3
             }
           ]
         }
@@ -35,53 +36,28 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:288934416181:android:1e9c707bb7671cc15a467c",
+        "mobilesdk_app_id": "1:625000981851:android:441fbd3050385eee2ba67e",
         "android_client_info": {
-          "package_name": "com.leecounty"
+          "package_name": "com.infojini.leecounty"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "625000981851-6apvnkm8ot3qv0k3jjqqf8incq0klls1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDtxUBdThA9Ww-__UQILsWyp8XTPxrlWMY"
+          "current_key": "AIzaSyDmG_ToscX_uD0lERcIDqdTEwnVgl4MJSk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "288934416181-f74pqt45i5el3u1b23dkrugh7m6pn4dp.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "org.reactjs.native.example.SetupApp"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:288934416181:android:024405342a334ac65a467c",
-        "android_client_info": {
-          "package_name": "com.serviceconnect"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDtxUBdThA9Ww-__UQILsWyp8XTPxrlWMY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "288934416181-f74pqt45i5el3u1b23dkrugh7m6pn4dp.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "org.reactjs.native.example.SetupApp"
-              }
+              "client_id": "625000981851-6apvnkm8ot3qv0k3jjqqf8incq0klls1.apps.googleusercontent.com",
+              "client_type": 3
             }
           ]
         }
