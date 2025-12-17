@@ -1,4 +1,4 @@
-package com.leecounty
+package com.infojini.hvsreach
 
 import android.app.Application
 import com.facebook.react.PackageList

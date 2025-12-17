@@ -33,35 +33,6 @@
           ]
         }
       }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:625000981851:android:441fbd3050385eee2ba67e",
-        "android_client_info": {
-          "package_name": "com.infojini.leecounty"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "625000981851-6apvnkm8ot3qv0k3jjqqf8incq0klls1.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDmG_ToscX_uD0lERcIDqdTEwnVgl4MJSk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "625000981851-6apvnkm8ot3qv0k3jjqqf8incq0klls1.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
     }
   ],
   "configuration_version": "1"
