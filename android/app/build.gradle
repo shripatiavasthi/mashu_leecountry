@@ -86,7 +86,7 @@ android {
 
     namespace "com.leecounty"
     defaultConfig {
-        applicationId "com.leecounty"
+        applicationId "com.infojini.leecounty"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
