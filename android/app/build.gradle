@@ -9,6 +9,13 @@ if (hasGoogleServicesJson) {
     logger.warn("google-services.json not found; Firebase services will be disabled for Android builds.")
 }
 
+// Explicitly point React Native native builds to local node_modules. Helps when
+// the project has been moved/renamed and stale paths linger in native caches.
+ext {
+    REACT_NATIVE_NODE_MODULES_DIR = file("$rootDir/../node_modules/react-native").absolutePath
+    REACT_NATIVE_WORKLETS_NODE_MODULES_DIR = file("$rootDir/../node_modules/react-native-worklets").absolutePath
+}
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
