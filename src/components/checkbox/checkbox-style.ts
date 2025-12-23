@@ -27,6 +27,7 @@ export const CHECKBOX_STYLE = StyleSheet.create({
     paddingVertical: 16,
     overflow: 'hidden',
     marginBottom: 15,
+    borderWidth: 0.0
   },
   listActive: {
     backgroundColor: COLORS.primaryColor,

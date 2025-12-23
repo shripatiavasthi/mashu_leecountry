@@ -75,6 +75,14 @@ const AdsBanner: React.FC<AdsBannerProps> = ({
                     color={COLORS.secondaryColor}
                     size="small"
                     onPress={onPress}
+                    lablestyle={{
+                                    color: COLORS.whiteColor,
+                                    fontWeight: '700',
+                                    letterSpacing: 0.1,
+                                    marginBottom: 7,
+                                    bottom: 3,
+                                    
+                                  }}
                   />
                 </View>
               </View>

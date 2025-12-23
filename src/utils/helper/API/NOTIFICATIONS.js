@@ -2,7 +2,7 @@ import axios from 'axios';
 import {getUniqueId} from 'react-native-device-info';
 
 // ENVIRONMENT VARIABLE
-import {REACT_APP_ENVIRONMENT, REACT_APP_TOKEN} from '@env';
+import {REACT_APP_ENVIRONMENT, REACT_APP_TOKEN} from '../../config/env';
 
 // BASE URL
 import getUrl from './api-util';

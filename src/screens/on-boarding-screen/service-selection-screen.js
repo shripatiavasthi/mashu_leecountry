@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   SafeAreaView,
@@ -8,29 +8,30 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-import {getUniqueId} from 'react-native-device-info';
+import messaging from '@react-native-firebase/messaging';
+import { getUniqueId } from 'react-native-device-info';
 
 // styles
-import {COLORS} from '../../assets/styles/imports/variables';
-import {GLOBAL_STYLE} from '../../assets/styles/global-style';
-import {ON_BOARDING_STYLE} from '../../assets/styles/screens/on-boarding-style';
+import { COLORS } from '../../assets/styles/imports/variables';
+import { GLOBAL_STYLE } from '../../assets/styles/global-style';
+import { ON_BOARDING_STYLE } from '../../assets/styles/screens/on-boarding-style';
 
 // images
-import {GLOBAL_IMAGES} from '../../assets/images/global-images';
+import { GLOBAL_IMAGES } from '../../assets/images/global-images';
 
 // components
-import {Btn, CheckboxList, Loader} from '../../components/index';
+import { Btn, CheckboxList, Loader } from '../../components/index';
 
 // redux
-import {AuthContext} from '../../redux/store';
+import { AuthContext } from '../../redux/store';
 
 // navigation
-import {useIsFocused} from '@react-navigation/native';
-import {getData, storeData} from '../../utils/helper/localStorage';
+import { useIsFocused } from '@react-navigation/native';
+import { getData, storeData } from '../../utils/helper/localStorage';
 import NOTIFICATIONS from '../../utils/helper/API/NOTIFICATIONS';
 
 const ServiceSelectionScreen = () => {
-  const {loginState, dispatch} = useContext(AuthContext);
+  const { loginState, dispatch } = useContext(AuthContext);
   const isFocused = useIsFocused();
 
   const [allServices, setAllServices] = useState([]);
@@ -47,7 +48,7 @@ const ServiceSelectionScreen = () => {
       .then(res => {
         const userOptions = res.userOption;
         let tempArr = userOptions.map(item => {
-          return {...item, isSelected: false};
+          return { ...item, isSelected: false };
         });
         setAllServices(tempArr);
         setText(res.commonText);
@@ -63,8 +64,27 @@ const ServiceSelectionScreen = () => {
     // Device Unique Id
     const deviceUniqueId = await getUniqueId();
 
+    // Register with FCM/FIS before requesting a token to avoid FIS_AUTH_ERROR
+    try {
+      await messaging().registerDeviceForRemoteMessages();
+    } catch (err) {
+      console.log('registerDeviceForRemoteMessages failed:', err);
+    }
+
     // Device token (FCM/APN)
-    const deviceToken = loginState.apnsToken || '';
+    let deviceToken = '';
+    try {
+      deviceToken =
+        Platform.OS === 'android'
+          ? await messaging().getToken()
+          : loginState.apnsToken ||
+            (await messaging().getAPNSToken()) ||
+            (await messaging().getToken());
+
+      console.log('Device Token:', deviceToken);
+    } catch (err) {
+      console.log('getToken failed:', err);
+    }
 
     let tempArr = [];
 
@@ -156,6 +176,9 @@ const ServiceSelectionScreen = () => {
           label={text?.continue?.[lang]}
           mode="outlined"
           color={COLORS.secondaryColor}
+          lablestyle={{
+            color: COLORS.whiteColor
+          }}
           size="medium"
           style={ON_BOARDING_STYLE.btn}
           onPress={() => {
@@ -172,7 +195,7 @@ const ServiceSelectionScreen = () => {
             // Register device token
             registerTokenData(allServices);
           }}
-          contentStyle={{marginRight: -6, marginLeft: -12}}
+        contentStyle={{ marginRight: -6, marginLeft: -12 }}
         />
       </View>
     </SafeAreaView>

@@ -1,8 +1,9 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {SvgUri} from 'react-native-svg';
+import messaging from '@react-native-firebase/messaging';
 
 // plugin
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 
@@ -135,6 +136,7 @@ const newMenus = data => {
 function Root() {
   const [menus, setMenus] = useState([]);
   const {loginState} = useContext(AuthContext);
+  const navigation = useNavigation();
 
   const lang = loginState.language;
 
@@ -147,6 +149,28 @@ function Root() {
       })
       .catch(error => console.log(error));
   }, []);
+
+  useEffect(() => {
+    const handleOpen = msg => {
+      if (msg) {
+        navigation.navigate('notification-details-screen', {
+          data: msg,
+          isRedirectFrom: 'notification-invoked',
+        });
+      }
+    };
+
+    const unsubscribeOpened = messaging().onNotificationOpenedApp(handleOpen);
+
+    messaging()
+      .getInitialNotification()
+      .then(handleOpen)
+      .catch(err => console.log('getInitialNotification failed', err));
+
+    return () => {
+      unsubscribeOpened();
+    };
+  }, [navigation]);
 
   const returnScreen = screenType => {
     switch (screenType) {

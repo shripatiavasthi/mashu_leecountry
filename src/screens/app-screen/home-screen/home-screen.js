@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useContext, useReducer} from 'react';
+import React, { useEffect, useState, useContext, useReducer } from 'react';
 
 import {
   View,
@@ -9,16 +9,16 @@ import {
   Linking,
   Text,
 } from 'react-native';
-import {SvgUri} from 'react-native-svg';
-import {useTranslation} from 'react-i18next';
+import { SvgUri } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 
-import {Paragraph} from 'react-native-paper';
+import { Paragraph } from 'react-native-paper';
 
 // styles
-import {COLORS} from '../../../assets/styles/imports/variables';
-import {GLOBAL_STYLE} from '../../../assets/styles/global-style';
-import {CARD_STYLE} from '../../../assets/styles/imports/cards-styles';
-import {HOME_STYLE} from '../../../assets/styles/screens/home-style';
+import { COLORS } from '../../../assets/styles/imports/variables';
+import { GLOBAL_STYLE } from '../../../assets/styles/global-style';
+import { CARD_STYLE } from '../../../assets/styles/imports/cards-styles';
+import { HOME_STYLE } from '../../../assets/styles/screens/home-style';
 
 // components
 import {
@@ -35,24 +35,24 @@ import {
 import SERVICE from '../../../utils/helper/API/SERVICE';
 import EVENTS from '../../../utils/helper/API/EVENTS';
 import BANNERS from '../../../utils/helper/API/BANNERS';
-import {formatDateAndTime} from '../../../utils/helper/formatDate';
-import {getData} from '../../../utils/helper/localStorage';
+import { formatDateAndTime } from '../../../utils/helper/formatDate';
+import { getData } from '../../../utils/helper/localStorage';
 
 //navigation
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 // redux
-import {AuthContext} from '../../../redux/store';
+import { AuthContext } from '../../../redux/store';
 
 const HomeScreen = props => {
   const navigation = useNavigation();
-  const {loginState, dispatch} = useContext(AuthContext);
-  const {t} = useTranslation();
+  const { loginState, dispatch } = useContext(AuthContext);
+  const { t } = useTranslation();
 
   const [serviceList, setServiceList] = useState([]);
   const [eventList, setEventList] = useState([]);
   const [bannerList, setBannerList] = useState([]);
-  const [allEventsData, setAllEventsData] = useState({title: '', icon: ''});
+  const [allEventsData, setAllEventsData] = useState({ title: '', icon: '' });
 
   const [actionButtons, setActionButtons] = useState({});
   const [bottomTileData, setBottomTileData] = useState({});
@@ -78,14 +78,14 @@ const HomeScreen = props => {
     // Fetching language from AsynStorage & storing it in redux store.
     getData('selected_language')
       .then(res => {
-        dispatch({type: 'UPDATE_LANGUAGE', language: res});
+        dispatch({ type: 'UPDATE_LANGUAGE', language: res });
       })
       .catch(error => console.log('Failed to set selected language: ', error));
   }, []);
 
   useEffect(() => {
     try {
-      
+
       getAllServices();
 
       getAllEvents();
@@ -93,7 +93,7 @@ const HomeScreen = props => {
       getAllBanners();
 
       getSettingData();
-      
+
     } catch (error) {
       console.log('Error while fetching data for HOMESCREEN: ', error);
       setLoading(false);
@@ -103,30 +103,30 @@ const HomeScreen = props => {
   // Get all services
   const getAllServices = () => {
     SERVICE.GET_ALL_SERVICES()
-    .then(res => {
-      let _data = res.data.data;
-      setServiceList(_data.services);
-    })
-    .catch(error =>
-      console.log('Error occured while fetching services: ', error),
-    );
+      .then(res => {
+        let _data = res.data.data;
+        setServiceList(_data.services);
+      })
+      .catch(error =>
+        console.log('Error occured while fetching services: ', error),
+      );
   }
 
   // Get all events
   const getAllEvents = () => {
     EVENTS.GET_ALL_EVENTS()
-    .then(res => {
-      let _data = res.data.data;
-      setAllEventsData(allEventsData => ({
-        ...allEventsData,
-        title: _data.labels.title,
-        icon: _data.actionIcons.iconUrl,
-      }));
-      setEventList(_data.list);
-    })
-    .catch(error => {
-      console.log('Error occured while fetching events data: ', error);
-    });
+      .then(res => {
+        let _data = res.data.data;
+        setAllEventsData(allEventsData => ({
+          ...allEventsData,
+          title: _data.labels.title,
+          icon: _data.actionIcons.iconUrl,
+        }));
+        setEventList(_data.list);
+      })
+      .catch(error => {
+        console.log('Error occured while fetching events data: ', error);
+      });
   }
 
   // get all Banners
@@ -148,14 +148,14 @@ const HomeScreen = props => {
   // Get settings data from local-storage
   const getSettingData = () => {
     getData('settings')
-    .then(res => {
-      setActionButtons(res.commonText);
-      setBottomTileData(res.bottomTile);
-      setIcons(res.commonIcons);
-    })
-    .catch(error =>
-      console.log('Error occured while fetching settings data: ', error),
-    );
+      .then(res => {
+        setActionButtons(res.commonText);
+        setBottomTileData(res.bottomTile);
+        setIcons(res.commonIcons);
+      })
+      .catch(error =>
+        console.log('Error occured while fetching settings data: ', error),
+      );
   }
 
 
@@ -201,10 +201,10 @@ const HomeScreen = props => {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={() => {onRefresh()}}
+              onRefresh={() => { onRefresh() }}
               colors={[COLORS.primaryColor]}
             />
-          }  
+          }
         >
           <View style={[HOME_STYLE.carouselWrap]}>
             <SnapCarousel
@@ -226,7 +226,7 @@ const HomeScreen = props => {
                           HOME_STYLE.titleIconWrap,
                         ]}>
                         <SvgUri
-                          style={{marginRight: 10}}
+                          style={{ marginRight: 10 }}
                           width={32}
                           height={32}
                           color={COLORS.secondaryColor}
@@ -242,9 +242,11 @@ const HomeScreen = props => {
                             navigation.navigate(item.name, item);
                           }}
                           label={actionButtons.viewAll[lang]}
+                          lablestyle={{
+                            color: COLORS.secondaryColor
+                          }}
                           mode="text"
                           size="small"
-                          color={COLORS.secondaryColor}
                           contentStyle={{
                             marginRight: -6,
                             marginLeft: -12,
@@ -259,7 +261,7 @@ const HomeScreen = props => {
                           contentInsetAdjustmentBehavior="automatic"
                           horizontal={true}
                           showsHorizontalScrollIndicator={false}>
-                          <View style={{width: 20}}></View>
+                          <View style={{ width: 20 }}></View>
                           {item.subCategories.map((serviceItem, index) => {
                             return (
                               <View
@@ -293,7 +295,7 @@ const HomeScreen = props => {
                               </View>
                             );
                           })}
-                          <View style={{width: 20}}></View>
+                          <View style={{ width: 20 }}></View>
                         </ScrollView>
                       </View>
                     </View>
@@ -309,7 +311,7 @@ const HomeScreen = props => {
                 <View style={[GLOBAL_STYLE.titleWrap]}>
                   <View style={[GLOBAL_STYLE.titleIconWrap]}>
                     <SvgUri
-                      style={{marginRight: 12}}
+                      style={{ marginRight: 12 }}
                       width={26}
                       height={26}
                       color={COLORS.secondaryColor}
@@ -330,8 +332,8 @@ const HomeScreen = props => {
                         label={actionButtons.viewAll[lang]}
                         mode="text"
                         size="small"
-                        color={COLORS.secondaryColor}
-                        contentStyle={{marginRight: -6, marginLeft: -12}}></Btn>
+                        // color={COLORS.secondaryColor}
+                        contentStyle={{ marginRight: -6, marginLeft: -12 }}></Btn>
                     </View>
                   )}
                 </View>
@@ -411,7 +413,7 @@ const HomeScreen = props => {
         <View
           style={[
             GLOBAL_STYLE.container,
-            {paddingVertical: 10, marginBottom: -10},
+            { paddingVertical: 10, marginBottom: -10 },
           ]}>
           <AdsBanner
             title={bottomTileData.heading[lang]}

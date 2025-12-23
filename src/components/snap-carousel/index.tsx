@@ -46,12 +46,15 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ data = [], actionButtonLabe
               label={actionButtonLabel}
               size="small"
               color={COLORS.primaryColor}
-              style={{ backgroundColor: COLORS.whiteColor, color: COLORS.primaryColor }}
+              style={{ backgroundColor: COLORS.whiteColor }}
               lablestyle={{
                 color: COLORS.secondaryColor,
                 fontFamily: FONT_ARIAL_REGULAR,
                 fontWeight: '700',
                 letterSpacing: 0.1,
+                marginBottom: 7,
+                bottom: 3,
+                
               }}
               contentStyle={[CAROUSEL_STYLE.btnContent, { marginRight: 0 }]}
               onPress={() => {

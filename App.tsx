@@ -23,6 +23,8 @@ import { getData, storeData } from './src/utils/helper/localStorage';
 import SETTINGS from './src/utils/helper/API/SETTINGS';
 import { COLORS } from './src/assets/styles/imports/variables';
 import './src/i18n';
+import messaging from '@react-native-firebase/messaging';
+import { Platform } from 'react-native';
 
 const fontConfig = {
   default: {
@@ -61,6 +63,15 @@ const App: React.FC = () => {
 
   const [loginState, dispatch] = useReducer(loginReducer, initialState);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
+
+  const saveStatusToStorage = async (key: string, value: boolean) => {
+    try {
+      await storeData(key, value);
+      dispatch({ type: 'UPDATE_BADGE_STATUS', badgeStatus: value });
+    } catch (err) {
+      console.log('Failed to update badge status', err);
+    }
+  };
 
   const getLocalData = async (key1: string, key2: string) => {
     setAuthLoading(true);
@@ -116,6 +127,83 @@ const App: React.FC = () => {
       })
       .catch(error => console.log(error));
   }, []);
+
+  // Foreground/notification-open handlers
+  useEffect(() => {
+    const handleNotificationUpdate = () => {
+      dispatch({
+        type: 'NOTIFICATION_UPDATE',
+        notificationUpdate: new Date(),
+      });
+      saveStatusToStorage('badgeStatus', true);
+    };
+
+    const unsubscribeOnMessage = messaging().onMessage(async () => {
+      handleNotificationUpdate();
+    });
+
+    const unsubscribeOnNotificationOpened = messaging().onNotificationOpenedApp(
+      () => {
+        handleNotificationUpdate();
+      },
+    );
+
+    // Cold-start notification
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          handleNotificationUpdate();
+        }
+      })
+      .catch(err => console.log('getInitialNotification error', err));
+
+    return () => {
+      unsubscribeOnMessage();
+      unsubscribeOnNotificationOpened();
+    };
+  }, []);
+
+  // Permission + token capture (APNs/FCM)
+  useEffect(() => {
+    const registerForPushNotifications = async () => {
+      try {
+        const authStatus = await messaging().requestPermission();
+        console.log('Push notification auth status:', authStatus);
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        console.log('Push notification enabled status:', enabled);
+        if (!enabled) {
+          console.log('Push permission not granted:', authStatus);
+          return;
+        }
+        console.log('Push permission granted:', authStatus);
+
+        if (Platform.OS === 'ios') {
+          await messaging().registerDeviceForRemoteMessages();
+        }
+        console.log('Device registered for remote messages');
+        const apnsToken =
+          Platform.OS === 'ios' ? await messaging().getAPNSToken() : null;
+        console.log('APNs Token:', apnsToken);
+        const fcmToken = await messaging().getToken();
+        console.log('FCM Token:', fcmToken);
+        const tokenToStore =
+          Platform.OS === 'ios' ? apnsToken || fcmToken : fcmToken;
+        console.log('Final Token to Store:', tokenToStore);
+        if (tokenToStore) {
+          dispatch({ type: 'APN_TOKEN', apnsToken: tokenToStore });
+          await storeData('apnsToken', tokenToStore);
+        }
+      } catch (error) {
+        console.log('Push notification setup error:', error);
+      }
+    };
+
+    registerForPushNotifications();
+  }, []);
+
 
   return (
     <PaperProvider theme={paperTheme}>
