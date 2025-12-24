@@ -3,6 +3,7 @@ import 'react-native-gesture-handler';
 import React, { useEffect, useReducer, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNetInfo } from '@react-native-community/netinfo';
+import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import {
   Provider as PaperProvider,
   configureFonts,
@@ -16,6 +17,7 @@ import {
 
 import NavigationStack from './src/navigation/drawer-navigation';
 import RootStack from './src/navigation/root-navigation';
+import { navigationRef } from './src/navigation/navigation-service';
 import { AuthContext, initialState, loginReducer } from './src/redux/store';
 import NoInternet from './src/components/no-internet';
 import { Loader } from './src/components';
@@ -23,7 +25,6 @@ import { getData, storeData } from './src/utils/helper/localStorage';
 import SETTINGS from './src/utils/helper/API/SETTINGS';
 import { COLORS } from './src/assets/styles/imports/variables';
 import './src/i18n';
-import messaging from '@react-native-firebase/messaging';
 import { Platform } from 'react-native';
 
 const fontConfig = {
@@ -118,6 +119,28 @@ const App: React.FC = () => {
     }
   };
 
+  const handleNotificationNavigation = (
+    remoteMessage: FirebaseMessagingTypes.RemoteMessage | null,
+  ) => {
+    if (!remoteMessage) {
+      return;
+    }
+    const notificationId =
+      remoteMessage?.data?.id ?? remoteMessage?.messageId ?? null;
+    const navigator: any = navigationRef.current;
+
+    if (navigator?.navigate) {
+      if (notificationId) {
+        navigator.navigate('notification-details-screen', {
+          data: notificationId,
+          isRedirectFrom: 'notification-invoked',
+        });
+      } else {
+        navigator.navigate('notifications');
+      }
+    }
+  };
+
   useEffect(() => {
     getLocalData('selected_services', 'selected_language');
 
@@ -138,13 +161,15 @@ const App: React.FC = () => {
       saveStatusToStorage('badgeStatus', true);
     };
 
-    const unsubscribeOnMessage = messaging().onMessage(async () => {
+    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
       handleNotificationUpdate();
+      handleNotificationNavigation(remoteMessage);
     });
 
     const unsubscribeOnNotificationOpened = messaging().onNotificationOpenedApp(
-      () => {
+      remoteMessage => {
         handleNotificationUpdate();
+        handleNotificationNavigation(remoteMessage);
       },
     );
 
@@ -154,6 +179,7 @@ const App: React.FC = () => {
       .then(remoteMessage => {
         if (remoteMessage) {
           handleNotificationUpdate();
+          handleNotificationNavigation(remoteMessage);
         }
       })
       .catch(err => console.log('getInitialNotification error', err));

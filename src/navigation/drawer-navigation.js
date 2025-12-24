@@ -6,6 +6,7 @@ import messaging from '@react-native-firebase/messaging';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
+import {navigationRef} from './navigation-service';
 
 // components
 import CustomDrawer from '../components/drawer/drawer';
@@ -235,7 +236,7 @@ function Root() {
 export default function NavigationStack({theme}) {
   return (
     //<SafeAreaProvider>
-    <NavigationContainer theme={theme}>
+    <NavigationContainer theme={theme} ref={navigationRef}>
       <Stack.Navigator>
         <Stack.Screen
           name="Root"
