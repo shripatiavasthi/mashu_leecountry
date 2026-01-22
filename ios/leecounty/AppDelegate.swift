@@ -34,6 +34,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
+  override func newArchEnabled() -> Bool {
+    return false
+  }
+
+  override func fabricEnabled() -> Bool {
+    return false
+  }
+
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     self.bundleURL()
   }
